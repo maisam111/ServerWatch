@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServerAuth.Models;
 using ServerAuth.Database;
@@ -26,7 +26,6 @@ namespace ServerAuth.Controllers
         [HttpGet]
         [Route("api/watch")]
         public async Task<IActionResult> Get()
-
         {
             var result = await _watchService.GetAllAsync();
             List<WatchDTO> objs = new List<WatchDTO>();
