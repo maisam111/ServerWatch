@@ -1,9 +1,21 @@
-﻿using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+
+
+public class AuthenticationError: Exception {
+    public AuthenticationError() {}
+
+    public AuthenticationError(string message)
+        : base(message) { }
+    
+    public AuthenticationError(string message, Exception error)
+        : base(message, error) { }
+    
+}
 
 namespace ServerAuth.Services
 {
@@ -14,6 +26,7 @@ namespace ServerAuth.Services
         {
             _userService = userService;
         }
+
         public async Task<string> AuthenticateAsync(string email, string password)
         {
             if (await _userService.IsValidCredintialsAsync(email, password))
@@ -22,20 +35,18 @@ namespace ServerAuth.Services
             }
             else
             {
-                return "";
+                throw AuthenticationError("Invalid Credentials");
             }
-
         }
+
         private string GenerateToken(string email)
         {
             var tokenKey = "private key secret";
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(tokenKey);
-            var id = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, email),
-            });
-            var tokenDescriptor = new SecurityTokenDescriptor
+            var id = new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Name, email) });
+
+            var tokenDescriptor = new SecurityTokenDescriptor 
             {
                 Subject = id,
                 Expires = DateTime.UtcNow.AddHours(1),
@@ -43,6 +54,7 @@ namespace ServerAuth.Services
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
