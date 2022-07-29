@@ -1,4 +1,4 @@
-﻿using MongoDB.Driver;
+using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ServerAuth.Database;
@@ -71,15 +71,9 @@ namespace ServerAuth.Services
         {
             var filter = Builders<User>.Filter.Eq("Id", UserId);
             var deleteStatus = await _database.UsersCollection.DeleteOneAsync(filter);
-            if (deleteStatus.DeletedCount > 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return (deleteStatus.DeletedCount == 1);        
         }
+
         public async Task<bool> IsValidCredintialsAsync(string email, string password)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))

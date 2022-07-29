@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +7,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServerWatch.Data;
 using ServerWatch.Models;
+
+
+public class ServerWatchError: Exception {
+    public ServerWatchError() {}
+
+    public ServerWatchError(string message)
+        : base(message) { }
+    
+    public ServerWatchError(string message, Exception error)
+        : base(message, error) { }
+    
+}
+
 
 namespace ServerWatch.Controllers
 {
@@ -33,13 +46,7 @@ namespace ServerWatch.Controllers
         public async Task<ActionResult<staticInfo>> GetstaticInfo(int id)
         {
             var staticInfo = await _context.staticInfo.FindAsync(id);
-
-            if (staticInfo == null)
-            {
-                return NotFound();
-            }
-
-            return staticInfo;
+            return staticInfo ?? NotFound();
         }
 
         // PUT: api/staticInfoes/5
@@ -60,13 +67,13 @@ namespace ServerWatch.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!staticInfoExists(id))
+                if (staticInfoExists(id) is not true)
                 {
                     return NotFound();
                 }
                 else
                 {
-                    throw;
+                    throw ServerWatchError($"ID ({id}) not found");
                 }
             }
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using ServerAuth.Database;
@@ -7,6 +7,19 @@ using ServerAuth.Request;
 using ServerAuth.Response;
 using ServerAuth.Services;
 using System;
+
+
+public class AuthenticationError: Exception {
+    public AuthenticationError() {}
+
+    public AuthenticationError(string message)
+        : base(message) { }
+    
+    public AuthenticationError(string message, Exception error)
+        : base(message, error) { }
+    
+}
+
 
 namespace ServerAuth.Controllers
 {
@@ -30,17 +43,19 @@ namespace ServerAuth.Controllers
             // login
             try
             {
-                if (await _userService.IsValidCredintialsAsync(userAuth.Email, userAuth.Password))
-                {
-                    var token = await _authenticationService.AuthenticateAsync(userAuth.Email, userAuth.Password);
-                    return Ok(token);
-                };
+                var validCredentials = await _userService.IsValidCredintialsAsync(userAuth.Email, userAuth.Password);
+                if (validCredentials is not true)
+                    return BadRequest("Incorrenct email or password");
+                
+                return Ok(await _authenticationService.AuthenticateAsync(
+                    userAuth.Email,
+                    userAuth.Password));
+                
             }
-            catch (Exception e)
+            catch (Exception e) // TODO replace Exception
             {
                 return BadRequest(e.Message);
             }
-            return BadRequest("There is error");
 
         }
 
