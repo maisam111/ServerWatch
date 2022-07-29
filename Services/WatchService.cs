@@ -1,4 +1,4 @@
-﻿using MongoDB.Driver;
+using MongoDB.Driver;
 using ServerAuth.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -47,7 +47,6 @@ namespace ServerAuth.Services
         }
 
         public async Task<bool> DeleteAsync(string watchId)
-
         {
             var filter = Builders<Watch>.Filter.Eq("Id", ObjectId.Parse(watchId));
             var deleteStatus = await _database.WatchCollection.DeleteOneAsync(filter);
